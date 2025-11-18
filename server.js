@@ -1,27 +1,33 @@
 const express = require("express");
-const cors = require("cors");
-const compression = require("compression"); // ← importar
+const compression = require("compression");
 
 const app = express();
 
-app.use(compression()); // ← ativar compressão GZIP
-app.use(cors());
+// Ativa compressão máxima (gzip/brotli)
+app.use(compression({ level: 9 }));
+
+// Remove header inútil
+app.disable("x-powered-by");
+
+// CORS mínimo possível
+app.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  next();
+});
 
 app.set("trust proxy", true);
 
+// Endpoint principal (retorna só o IP puro, menor tamanho possível)
 app.get("/", (req, res) => {
   const ip =
-    req.headers["x-forwarded-for"]?.split(",")[0]?.trim() ||
-    req.ip ||
-    req.connection?.remoteAddress ||
-    req.socket?.remoteAddress ||
-    (req.connection?.socket ? req.connection.socket.remoteAddress : null);
+    req.headers["x-forwarded-for"]?.split(",")[0].trim() ||
+    req.ip.replace("::ffff:", "");
 
-  res.json({ ip });
+  res.type("text/plain").send(ip);
 });
+
+// Endpoint de teste ultra leve (0 bytes de body)
+app.get("/ping", (req, res) => res.status(204).end());
 
 const PORT = process.env.PORT || 3000;
-
-app.listen(PORT, () => {
-  console.log(`API de IP público online na porta ${PORT}`);
-});
+app.listen(PORT, () => {});
