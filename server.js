@@ -1,13 +1,15 @@
 const express = require("express");
+const cors = require("cors");
+
 const app = express();
+
+// Permite qualquer site acessar sua API (CORS liberado)
+app.use(cors());
 
 app.set("trust proxy", true);
 
-
-// Rota principal: retorna o IP público do usuário/visitante
+// Rota principal: retorna IP público real
 app.get("/", (req, res) => {
-
-  // Pega o IP real mesmo atrás de proxies (Heroku, Vercel, Render, etc.)
   const ip =
     req.headers["x-forwarded-for"]?.split(",")[0]?.trim() ||
     req.ip ||
@@ -18,9 +20,8 @@ app.get("/", (req, res) => {
   res.json({ ip });
 });
 
-// Porta usada pelo Heroku ou 3000 localmente
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
-  console.log(`API de IP público rodando na porta ${PORT}`);
+  console.log(`API de IP público online na porta ${PORT}`);
 });
