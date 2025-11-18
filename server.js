@@ -1,14 +1,14 @@
 const express = require("express");
 const cors = require("cors");
+const compression = require("compression"); // ← importar
 
 const app = express();
 
-// Permite qualquer site acessar sua API (CORS liberado)
+app.use(compression()); // ← ativar compressão GZIP
 app.use(cors());
 
 app.set("trust proxy", true);
 
-// Rota principal: retorna IP público real
 app.get("/", (req, res) => {
   const ip =
     req.headers["x-forwarded-for"]?.split(",")[0]?.trim() ||
