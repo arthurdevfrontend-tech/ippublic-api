@@ -1,5 +1,7 @@
 const express = require("express");
 const compression = require("compression");
+const favicon = require("serve-favicon");
+const path = require("path");
 
 const app = express();
 
@@ -17,6 +19,9 @@ app.use((req, res, next) => {
 
 app.set("trust proxy", true);
 
+// **Middleware do favicon** (adicione antes das rotas)
+app.use(favicon(path.join(__dirname, "favicon.ico"))); // coloque seu favicon.ico na raiz do projeto
+
 // Endpoint principal (retorna só o IP puro, menor tamanho possível)
 app.get("/", (req, res) => {
   const ip =
@@ -31,3 +36,4 @@ app.get("/ping", (req, res) => res.status(204).end());
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {});
+
